@@ -31,6 +31,17 @@ function post(url, callback, data) {
     callback);
 }
 
+/**
+ * This function converts coordinates provided by critical maps.
+ *
+ * It is stolen from: https://github.com/criticalmaps/criticalmaps-web/blob/master/src/js/app/utils.js
+ *
+ * @author maltehuebner
+ * @since 2015-01-25
+ * @see https://github.com/criticalmaps/criticalmaps-web/blob/master/src/js/app/utils.js
+ * @param oldFormat
+ * @returns {string}
+ */
 function convertCoordinateFormat(oldFormat) {
     var chars = oldFormat.split( '' );
 
@@ -39,6 +50,17 @@ function convertCoordinateFormat(oldFormat) {
     return chars.join('');
 }
 
+/**
+ * After each api query this function handles processing of the results.
+ *
+ * It basically goes through all location structures and calls processLocation on those entities.
+ *
+ * @author maltehuebner
+ * @since 2015-01-25
+ * @param error
+ * @param response
+ * @param body
+ */
 function processResult(error, response, body) {
     if (body) {
         var data = JSON.parse(body);
@@ -53,6 +75,18 @@ function processResult(error, response, body) {
     }
 }
 
+/**
+ * Each location construct will be handled by this function.
+ *
+ * This function looks up the identifier in the databse. If it is not found, a new identifier entity will be created.
+ *
+ * Afterwards the location data is also saved in the database.
+ *
+ * @author maltehuebner
+ * @since 2015-01-25
+ * @param identifier
+ * @param location
+ */
 function processLocation(identifier, location) {
     var queryString = 'SELECT * FROM criticalmaps_user WHERE identifier = \'' + identifier + '\';';
 
@@ -67,6 +101,16 @@ function processLocation(identifier, location) {
     savePosition(identifier, location);
 }
 
+/**
+ * Creates a new identifier in the database.
+ *
+ * This method sets up a new criticalmaps_user entity in the criticalmass database. It will setup a color and some dattime
+ * stuff for this identifier.
+ *
+ * @author maltehuebner
+ * @since 2015-01-25
+ * @param identifier
+ */
 function createIdentifier(identifier) {
     var colorRed = Math.round(Math.random() * 255);
     var colorGreen = Math.round(Math.random() * 255);
@@ -77,12 +121,29 @@ function createIdentifier(identifier) {
     runDatabaseQuery(queryString, function() {});
 }
 
+/**
+ * Updates the identifier entity in the database.
+ *
+ * At this time, only the endDateTime field will be updated to the current timestamp.
+ *
+ * @author maltehuebner
+ * @since 2015-01-25
+ * @param identifier
+ */
 function updateIdentifier(identifier) {
     var queryString = 'UPDATE criticalmaps_user SET endDateTime = NOW() WHERE identifier = \'' + identifier + '\';';
 
     runDatabaseQuery(queryString, function() {});
 }
 
+/**
+ * Saves the location data into our database.
+ *
+ * @author maltehuebner
+ * @since 2015-01-25
+ * @param identifier
+ * @param location
+ */
 function savePosition(identifier, location) {
     var latitude = convertCoordinateFormat(location.latitude);
     var longitude = convertCoordinateFormat(location.longitude);
@@ -94,10 +155,22 @@ function savePosition(identifier, location) {
     runDatabaseQuery(queryString, function() {});
 }
 
+/**
+ * Starts a query for the latest position data and pass them to processResult().
+ *
+ * @author maltehuebner
+ * @since 2015-01-25
+ */
 function fetchPositions() {
     get(config.criticalmaps.baseUrl, processResult);
 }
 
+/**
+ * Starts the callback for processing location data from critical maps.
+ *
+ * @author maltehuebner
+ * @since 2015-01-25
+ */
 function startFetchCallback() {
     fetchPositions();
 
