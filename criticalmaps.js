@@ -24,11 +24,11 @@ function get(url, callback, data) {
 
 function post(url, callback, data) {
     request({
-            uri: url,
-            method: "POST",
-            form: data
-        },
-        callback);
+        uri: url,
+        method: "POST",
+        form: data
+    },
+    callback);
 }
 
 function convertCoordinateFormat(oldFormat) {
