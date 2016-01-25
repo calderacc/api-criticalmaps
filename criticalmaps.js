@@ -5,18 +5,14 @@ var fs = require('fs');
 var configFile = fs.readFileSync('../api-commons/config.js');
 var config;
 
-try
-{
+try {
     config = JSON.parse(configFile);
-}
-catch (err)
-{
-    console.log('There has been an error parsing your JSON.')
+} catch (err) {
+    console.log('There has been an error parsing your JSON.');
     console.log(err);
 }
 
-function get(url, callback, data)
-{
+function get(url, callback, data) {
     request({
         uri: url,
         method: "GET",
@@ -26,8 +22,7 @@ function get(url, callback, data)
     }, callback);
 }
 
-function post(url, callback, data)
-{
+function post(url, callback, data) {
     request({
             uri: url,
             method: "POST",
@@ -105,6 +100,8 @@ function fetchPositions() {
 }
 
 function startFetchCallback() {
+    fetchPositions();
+
     setInterval(fetchPositions, config.criticalmaps.interval);
 }
 
