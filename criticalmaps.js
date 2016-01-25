@@ -91,7 +91,6 @@ function savePosition(identifier, location) {
 
     var queryString = 'INSERT INTO position SET criticalmaps_user = (SELECT id FROM criticalmaps_user WHERE identifier = \'' + identifier + '\'), latitude = ' + latitude + ', longitude = ' + longitude + ', creationDateTime = \'' + dateTimeString + '\';';
 
-    console.log(queryString);
     runDatabaseQuery(queryString, function() {});
 }
 
