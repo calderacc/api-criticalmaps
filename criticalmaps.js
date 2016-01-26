@@ -92,13 +92,11 @@ function processLocation(identifier, location) {
 
     runDatabaseQuery(queryString, function(rows) {
         if (rows.length == 0) {
-            createIdentifier(identifier)
+            createIdentifier(identifier, location)
         } else {
-            updateIdentifier(identifier);
+            updateIdentifier(identifier, location);
         }
     });
-
-    savePosition(identifier, location);
 }
 
 /**
@@ -110,15 +108,20 @@ function processLocation(identifier, location) {
  * @author maltehuebner
  * @since 2015-01-25
  * @param identifier
+ * @param location
  */
-function createIdentifier(identifier) {
+function createIdentifier(identifier, location) {
     var colorRed = Math.round(Math.random() * 255);
     var colorGreen = Math.round(Math.random() * 255);
     var colorBlue = Math.round(Math.random() * 255);
 
     var queryString = 'INSERT INTO criticalmaps_user SET identifier = \'' + identifier + '\', creationDateTime = NOW(), startDateTime = NOW(), endDateTime = NOW(), colorRed = ' + colorRed + ', colorGreen = ' + colorGreen + ', colorBlue = ' + colorBlue + ';';
 
-    runDatabaseQuery(queryString, function() {});
+    console.log('Creating identifier ' + identifier);
+
+    runDatabaseQuery(queryString, function() {
+        savePosition(identifier, location);
+    });
 }
 
 /**
@@ -129,11 +132,14 @@ function createIdentifier(identifier) {
  * @author maltehuebner
  * @since 2015-01-25
  * @param identifier
+ * @param location
  */
-function updateIdentifier(identifier) {
+function updateIdentifier(identifier, location) {
     var queryString = 'UPDATE criticalmaps_user SET endDateTime = NOW() WHERE identifier = \'' + identifier + '\';';
 
-    runDatabaseQuery(queryString, function() {});
+    runDatabaseQuery(queryString, function() {
+        savePosition(identifier, location);
+    });
 }
 
 /**
@@ -150,6 +156,8 @@ function savePosition(identifier, location) {
     var dateTime = new Date(location.timestamp * 1000);
     var dateTimeString = dateTime.getFullYear() + '-' + (dateTime.getMonth() + 1) + '-' + dateTime.getDate() + ' ' + dateTime.getHours() + '-' + dateTime.getMinutes() + '-' + dateTime.getSeconds();
 
+    console.log('Saving identifier ' + identifier + ' [' + latitude + ', ' + longitude + ']');
+
     var queryString = 'INSERT INTO position SET criticalmaps_user = (SELECT id FROM criticalmaps_user WHERE identifier = \'' + identifier + '\'), latitude = ' + latitude + ', longitude = ' + longitude + ', creationDateTime = \'' + dateTimeString + '\';';
 
     runDatabaseQuery(queryString, function() {});
@@ -162,6 +170,8 @@ function savePosition(identifier, location) {
  * @since 2015-01-25
  */
 function fetchPositions() {
+    console.log('Querying Critical Maps Api');
+
     get(config.criticalmaps.baseUrl, processResult);
 }
 
