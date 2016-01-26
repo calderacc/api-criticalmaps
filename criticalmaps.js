@@ -2,7 +2,7 @@ var mysqlConnectionPool = require('../api-commons/connectionPool.js').mysqlConne
 var request = require("request");
 var fs = require('fs');
 
-var configFile = fs.readFileSync('../api-commons/config.js');
+var configFile = fs.readFileSync('../api-commons/config.json');
 var config;
 
 try {
