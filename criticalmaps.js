@@ -161,9 +161,11 @@ function savePosition(identifier, location) {
     var queryString  = 'INSERT INTO position SET criticalmaps_user = (';
         queryString += 'SELECT id FROM criticalmaps_user WHERE identifier = \'' + identifier + '\'';
         queryString += '), ride_id = (';
-        queryString += 'SELECT id FROM ride WHERE isArchived = 0 AND hasLocation = 1 AND DATE(dateTime) = DATE(\'' + dateTimeString + '\') ORDER BY SQRT(POW(ride.latitude - ' + latitude + ', 2) + POW(ride.longitude - ' + longitude +', 2)) ASC LIMIT 1';
-        queryString += '), latitude = ' + latitude + ', longitude = ' + longitude + ', creationDateTime = \'' + dateTimeString + '\';';
-    
+        // yeah, right, double SQRT(…) is evil, but SQL does not support "virtual columns" in where clauses
+        queryString += 'SELECT id FROM ride WHERE SQRT(POW(ride.latitude - ' + latitude + ', 2) + POW(ride.longitude - ' + longitude +', 2)) < 0.3 AND isArchived = 0 AND hasLocation = 1 AND DATE(dateTime) = DATE(\'' + dateTimeString + '\') ORDER BY SQRT(POW(ride.latitude - ' + latitude + ', 2) + POW(ride.longitude - ' + longitude +', 2)) ASC LIMIT 1';
+        queryString += '), latitude = ' + latitude + ', longitude = ' + longitude + ', timestamp = UNIX_TIMESTAMP(\'' + dateTimeString + '\'), creationDateTime = \'' + dateTimeString + '\';';
+
+    console.log(queryString);
     runDatabaseQuery(queryString, function() {});
 }
 
