@@ -158,8 +158,12 @@ function savePosition(identifier, location) {
 
     console.log('Saving identifier ' + identifier + ' [' + latitude + ', ' + longitude + ']');
 
-    var queryString = 'INSERT INTO position SET criticalmaps_user = (SELECT id FROM criticalmaps_user WHERE identifier = \'' + identifier + '\'), latitude = ' + latitude + ', longitude = ' + longitude + ', creationDateTime = \'' + dateTimeString + '\';';
-
+    var queryString  = 'INSERT INTO position SET criticalmaps_user = (';
+        queryString += 'SELECT id FROM criticalmaps_user WHERE identifier = \'' + identifier + '\'';
+        queryString += '), ride_id = (';
+        queryString += 'SELECT id FROM ride WHERE isArchived = 0 AND hasLocation = 1 AND DATE(dateTime) = DATE(\'' + dateTimeString + '\') ORDER BY SQRT(POW(ride.latitude - ' + latitude + ', 2) + POW(ride.longitude - ' + longitude +', 2)) ASC LIMIT 1';
+        queryString += '), latitude = ' + latitude + ', longitude = ' + longitude + ', creationDateTime = \'' + dateTimeString + '\';';
+    
     runDatabaseQuery(queryString, function() {});
 }
 
