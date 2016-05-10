@@ -63,7 +63,13 @@ function convertCoordinateFormat(oldFormat) {
  */
 function processResult(error, response, body) {
     if (body) {
-        var data = JSON.parse(body);
+        var data  = null;
+
+        try {
+            data = JSON.parse(body);
+        } catch(err) {
+            console.log('Could not parse JSON. Maybe the server has a error page online?')
+        }
 
         if (data != null) {
             var locations = data.locations;
